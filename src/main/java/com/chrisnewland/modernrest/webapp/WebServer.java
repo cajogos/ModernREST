@@ -24,24 +24,19 @@ public class WebServer
 
 	public static void main(String[] args)
 	{
-		ResourceConfig config = new ResourceConfig();
-
-		String packageWeb = WebServer.class.getPackage()
-										   .getName();
-
-		config.packages(packageWeb + ".service");
-		config.packages(packageWeb + ".filter");
+		if (args.length < 1)
+		{
+			System.err.println("WebServer <resources folder>");
+			System.exit(-1);
+		}
 
 		Server server = new Server(new InetSocketAddress("127.0.0.1", 8080));
 
 		ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
 
-		if (args.length < 1)
-		{
-			System.err.println("Webserver <resources folder>");
-			System.exit(-1);
-		}
-
+		// =================================================
+		// Static file Servlet
+		// =================================================
 		Path resourcesBase = Paths.get(args[0]);
 
 		Path staticResourcePath = resourcesBase.resolve("static");
@@ -54,17 +49,27 @@ public class WebServer
 
 		servletContextHandler.addServlet(holderStatic, "/static/*");
 
-		ServletHolder holderDefault = new ServletHolder("default", DefaultServlet.class);
-		servletContextHandler.addServlet(holderDefault, "/");
+		// =================================================
+		// Service and Filter Servlet
+		// =================================================
+		ResourceConfig config = new ResourceConfig();
+
+		String packageWeb = WebServer.class.getPackage()
+										   .getName();
+
+		config.packages(packageWeb + ".service");
+		config.packages(packageWeb + ".filter");
 
 		ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
-
 		servletContextHandler.addServlet(servletHolder, "/*");
 
-		SessionHandler sessions = servletContextHandler.getSessionHandler();
-		SessionCache cache = new DefaultSessionCache(sessions);
-		cache.setSessionDataStore(new NullSessionDataStore());
-		sessions.setSessionCache(cache);
+		// =================================================
+		// Session Handling
+		// =================================================
+		SessionHandler sessionHandler = servletContextHandler.getSessionHandler();
+		SessionCache sessionCache = new DefaultSessionCache(sessionHandler);
+		sessionCache.setSessionDataStore(new NullSessionDataStore());
+		sessionHandler.setSessionCache(sessionCache);
 
 		try
 		{
@@ -73,7 +78,7 @@ public class WebServer
 		}
 		catch (Throwable t)
 		{
-			t.printStackTrace();
+			logger.error("Server Error", t);
 		}
 		finally
 		{
