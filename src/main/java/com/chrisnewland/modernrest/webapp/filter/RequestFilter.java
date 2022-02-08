@@ -22,6 +22,8 @@ public class RequestFilter implements ContainerRequestFilter
 		try
 		{
 			HttpSession session = servletRequest.getSession(true);
+
+			logger.info("got session: {}", session);
 		}
 		catch (Throwable t)
 		{

@@ -3,11 +3,19 @@ package com.chrisnewland.modernrest.webapp;
 import com.chrisnewland.freelogj.Logger;
 import com.chrisnewland.freelogj.LoggerFactory;
 
-import jakarta.ws.rs.core.UriBuilder;
-import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.session.DefaultSessionCache;
+import org.eclipse.jetty.server.session.NullSessionDataStore;
+import org.eclipse.jetty.server.session.SessionCache;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 
-import java.net.URI;
+import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class WebServer
@@ -24,10 +32,52 @@ public class WebServer
 		config.packages(packageWeb + ".service");
 		config.packages(packageWeb + ".filter");
 
-		URI baseUri = UriBuilder.fromUri("http://localhost/")
-								.port(8080)
-								.build();
+		Server server = new Server(new InetSocketAddress("127.0.0.1", 8080));
 
-		JettyHttpContainerFactory.createServer(baseUri, config);
+		ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+
+		if (args.length < 1)
+		{
+			System.err.println("Webserver <resources folder>");
+			System.exit(-1);
+		}
+
+		Path resourcesBase = Paths.get(args[0]);
+
+		Path staticResourcePath = resourcesBase.resolve("static");
+
+		ServletHolder holderStatic = new ServletHolder("static-home", DefaultServlet.class);
+
+		holderStatic.setInitParameter("resourceBase", staticResourcePath.toString());
+		holderStatic.setInitParameter("dirAllowed", "true");
+		holderStatic.setInitParameter("pathInfoOnly", "true");
+
+		servletContextHandler.addServlet(holderStatic, "/static/*");
+
+		ServletHolder holderDefault = new ServletHolder("default", DefaultServlet.class);
+		servletContextHandler.addServlet(holderDefault, "/");
+
+		ServletHolder servletHolder = new ServletHolder(new ServletContainer(config));
+
+		servletContextHandler.addServlet(servletHolder, "/*");
+
+		SessionHandler sessions = servletContextHandler.getSessionHandler();
+		SessionCache cache = new DefaultSessionCache(sessions);
+		cache.setSessionDataStore(new NullSessionDataStore());
+		sessions.setSessionCache(cache);
+
+		try
+		{
+			server.start();
+			server.join();
+		}
+		catch (Throwable t)
+		{
+			t.printStackTrace();
+		}
+		finally
+		{
+			server.destroy();
+		}
 	}
 }

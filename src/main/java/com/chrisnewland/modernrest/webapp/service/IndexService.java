@@ -12,6 +12,6 @@ public class IndexService
 	@Produces(MediaType.TEXT_HTML)
 	public String index()
 	{
-		return "<html><head></head><body><h1>Test</h1></body></html>";
+		return "<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"/static/style.css\"></head><body><h1>Test</h1></body></html>";
 	}
 }
