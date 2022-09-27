@@ -77,20 +77,8 @@ public class WebServer
 		sessionHandler.setSessionCache(sessionCache);
 
 		// =================================================
-		// WebSockets
+		// WebSockets - Uses WebsocketServerEndpoint class.
 		// =================================================
-
-
-//		Server server = new Server(new InetSocketAddress("127.0.0.1", 8080));
-//
-//		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-//
-//		context.setContextPath("/");
-//
-//		server.setHandler(context);
-
-
-
 		JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, (servletContext, wsContainer) -> {
 			wsContainer.setDefaultMaxTextMessageBufferSize(256);
 			wsContainer.setDefaultMaxBinaryMessageBufferSize(256);
