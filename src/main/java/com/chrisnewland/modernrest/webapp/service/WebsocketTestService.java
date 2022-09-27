@@ -5,21 +5,24 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/")
-public class IndexService
+@Path("/websocket-test")
+public class WebsocketTestService
 {
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public String index()
+    public String display()
     {
         return "<html>" +
                 "<head>" +
-                "<title>ModernREST</title>" +
+                "<title>WebSockets - ModernREST</title>" +
                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/style.css\">" +
+                "<script src=\"/static/websockets.js\"></script>" +
                 "</head>" +
                 "<body>" +
-                "<h1>It works!</h1>" +
-                "<a href=\"/websocket-test\">WebSockets Test</a>" +
+                "<h1>Websockets Test!</h1>" +
+                "<textarea id=\"messages\" rows=\"10\"></textarea>" +
+                "<input id=\"message-input\" placeholder=\"Enter your message...\" />" +
+                "<button id=\"btn-send\">Send</button>" +
                 "</body>" +
                 "</html>";
     }
