@@ -1,3 +1,19 @@
 body {
     background-color: azure;
+    font-family: sans-serif;
+    font-size: 16px;
+}
+
+/* Websockets Test Page */
+#messages {
+    width: 700px;
+    display: block;
+}
+#message-input {
+    height: 32px;
+    padding: 10px;
+}
+#btn-send {
+    height: 32px;
+    cursor: pointer;
 }

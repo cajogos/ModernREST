@@ -1,12 +1,46 @@
-// Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:8032/chat');
+document.addEventListener('DOMContentLoaded', () => {
+    /**
+     * Messages area
+     * @type {HTMLTextAreaElement}
+     */
+    const textArea = document.getElementById('messages');
 
-// Connection opened
-socket.addEventListener('open', (event) => {
-    socket.send('Hello Server!');
-});
+    /**
+     * Input Box
+     * @type {HTMLInputElement}
+     */
+    const inputText = document.getElementById('message-input');
 
-// Listen for messages
-socket.addEventListener('message', (event) => {
-    console.log('Message from server ', event.data);
+    /**
+     * Send Button
+     * @type {HTMLButtonElement}
+     */
+    const sendButton = document.getElementById('btn-send');
+
+    sendButton.addEventListener('click', (event) => {
+        let message = inputText.value.trim();
+        if (message !== '') {
+            socket.send(message);
+        }
+        inputText.value = '';
+    });
+
+    // Convert to correct endpoint
+    let webSocketEndpoint = new URL(window.location);
+    webSocketEndpoint.pathname = 'websocket';
+    webSocketEndpoint.protocol = 'ws:';
+
+    /**
+     * The websocket object connection
+     * @type {WebSocket}
+     */
+    const socket = new WebSocket(webSocketEndpoint.toString());
+
+    socket.addEventListener('open', (event) => {
+        socket.send('Connection!');
+    });
+
+    socket.addEventListener('message', (event) => {
+        textArea.value += event.data + "\n";
+    });
 });
