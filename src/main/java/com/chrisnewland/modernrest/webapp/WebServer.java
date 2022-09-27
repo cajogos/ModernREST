@@ -30,7 +30,11 @@ public class WebServer
 			System.exit(-1);
 		}
 
-		Server server = new Server(new InetSocketAddress("127.0.0.1", 8080));
+		// Use a custom defined port and hostname
+		int port = Integer.parseInt(System.getProperty("port", "8080"));
+		String hostname = System.getProperty("host", "127.0.0.1");
+
+		Server server = new Server(new InetSocketAddress(hostname, port));
 
 		ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
 
