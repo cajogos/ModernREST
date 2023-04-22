@@ -2,7 +2,6 @@ package com.chrisnewland.modernrest.webapp;
 
 import com.chrisnewland.freelogj.Logger;
 import com.chrisnewland.freelogj.LoggerFactory;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.session.DefaultSessionCache;
 import org.eclipse.jetty.server.session.NullSessionDataStore;
@@ -13,6 +12,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+
+import org.eclipse.jetty.websocket.jakarta.server.config.*;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
@@ -74,6 +75,16 @@ public class WebServer
 		SessionCache sessionCache = new DefaultSessionCache(sessionHandler);
 		sessionCache.setSessionDataStore(new NullSessionDataStore());
 		sessionHandler.setSessionCache(sessionCache);
+
+		// =================================================
+		// WebSockets - Uses WebsocketServerEndpoint class.
+		// =================================================
+		JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, (servletContext, wsContainer) -> {
+			wsContainer.setDefaultMaxTextMessageBufferSize(256);
+			wsContainer.setDefaultMaxBinaryMessageBufferSize(256);
+			wsContainer.setDefaultMaxSessionIdleTimeout(120_000);
+			wsContainer.addEndpoint(WebsocketServerEndpoint.class);
+		});
 
 		try
 		{
